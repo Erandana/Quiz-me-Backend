@@ -1,6 +1,7 @@
 package com.quizme.Controller;
 
 import com.quizme.Model.LoginObj;
+import com.quizme.Model.Token;
 import com.quizme.Model.User;
 import com.quizme.Repository.UserRepo;
 import com.quizme.Security.AuthenticationResponce;
@@ -48,6 +49,14 @@ public class UserController {
         return "hello";
     }
 
+    @PostMapping("/all/is_token_expired")
+    @ResponseBody
+    public Boolean isTokenExpired(@Valid @RequestBody Token token)
+    {
+        return jwtTokenUtil.isTokenExpired(token.getJwt());
+    }
+
+
 
     @PostMapping(value="/all/registration",produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -92,8 +101,7 @@ public class UserController {
         }
 
         final UserDetails userDetail=userDetailsService.loadUserByUsername(login.getUserName());
-        final String jwtToken=jwtTokenUtil. generateToken(userDetail);
-
+        final String jwtToken=jwtTokenUtil.generateToken(userDetail);
         return ResponseEntity.ok(new AuthenticationResponce(jwtToken));
 
     }
