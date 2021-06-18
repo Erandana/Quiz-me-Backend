@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.quizme.Service.MyUserDetailsPrinciple;
 import com.quizme.Service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,6 +29,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Autowired
     JwtTokenUtil JwttokenUtil;
+
+    MyUserDetailsPrinciple myUserDetailsPrinciple;
 
 
     @Override
@@ -62,14 +65,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         if (userName!= null && SecurityContextHolder.getContext().getAuthentication() == null) {
+             myUserDetailsPrinciple = userDetails.loadUserByUsername(userName);
 
-            @SuppressWarnings("unused")
-            UserDetails userDetail = userDetails.loadUserByUsername(userName);
         }
 
 
         if (JwttokenUtil.validateToken(jwt, userDetails.loadUserByUsername(userName))) {
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(myUserDetailsPrinciple, null, userDetails.getAuthorities());
 
             usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);

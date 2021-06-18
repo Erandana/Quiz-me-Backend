@@ -6,14 +6,18 @@ import com.quizme.Model.User;
 import com.quizme.Repository.UserRepo;
 import com.quizme.Security.AuthenticationResponce;
 import com.quizme.Security.JwtTokenUtil;
+import com.quizme.Service.MyUserDetailsPrinciple;
 import com.quizme.Service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +28,7 @@ import javax.validation.Valid;
 
 @RestController
 public class UserController {
+
 
     @Autowired
     UserRepo userRepo;
@@ -41,12 +46,24 @@ public class UserController {
     @Autowired
     JwtTokenUtil jwtTokenUtil;
 
+    //get student details from session
+    private String getUserFromSession() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            String userName = authentication.getName();
+            return userName;
+        }
+        return null;
+
+    }
+
+
     //testing purpose
-    @GetMapping("/all/hello")
+    @GetMapping("/hello")
     @ResponseBody
     public String hello()
     {
-        return "hello";
+       return getUserFromSession();
     }
 
     @PostMapping("/all/is_token_expired")
